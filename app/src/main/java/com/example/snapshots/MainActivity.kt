@@ -5,20 +5,45 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.example.snapshots.databinding.ActivityMainBinding
+import com.firebase.ui.auth.AuthUI
+import com.google.firebase.auth.FirebaseAuth
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
+
+    private val RC_SING_ING = 21
 
     private lateinit var mBindign : ActivityMainBinding
 
     private lateinit var mActiveFragment: Fragment
     private lateinit var mFragmentManager: FragmentManager
 
+    private lateinit var mAuthStateListener: FirebaseAuth.AuthStateListener
+    private var mFirebaseAuth: FirebaseAuth? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mBindign = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mBindign.root)
 
+        setupAuth()
         setupBottomNav()
+    }
+
+    private fun setupAuth() {
+        mFirebaseAuth = FirebaseAuth.getInstance()
+        mAuthStateListener = FirebaseAuth.AuthStateListener {
+            val user = it.currentUser
+            if (user == null) {
+                startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder()
+                    .setAvailableProviders(
+                        Arrays.asList(
+                            AuthUI.IdpConfig.EmailBuilder().build(),
+                            AuthUI.IdpConfig.GoogleBuilder().build())
+                    )
+                    .build(), RC_SING_ING)
+            }
+        }
     }
 
     private fun setupBottomNav() {
@@ -59,5 +84,15 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mFirebaseAuth?.addAuthStateListener(mAuthStateListener)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mFirebaseAuth?.removeAuthStateListener(mAuthStateListener)
     }
 }
