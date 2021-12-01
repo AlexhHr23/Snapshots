@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode == RC_SING_ING){
-            Toast.makeText(this, Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Bienvenido....", Toast.LENGTH_SHORT).show()
         }else{
             if(IdpResponse.fromResultIntent(data) == null){
                 finish()
