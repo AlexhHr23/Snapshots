@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.snapshots.databinding.FragmentAddBinding
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
@@ -56,7 +57,8 @@ class AddFragment : Fragment() {
     private fun postSnapshot() {
         mBinding.progressBar.visibility = View.VISIBLE
         val key = mDatabaseReference.push().key!!
-        val storageReference = mStoreageReference.child(PATH_SNAPSHOT).child("mu_photo")
+        val storageReference = mStoreageReference.child(PATH_SNAPSHOT)
+            .child(FirebaseAuth.getInstance().currentUser!!.uid).child(key)
         if(mPhotoSelectUri != null){
             storageReference.putFile(mPhotoSelectUri!!)
                 .addOnProgressListener {
