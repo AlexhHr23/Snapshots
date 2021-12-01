@@ -55,7 +55,7 @@ class AddFragment : Fragment() {
 
     private fun postSnapshot() {
         mBinding.progressBar.visibility = View.VISIBLE
-        //mStoreageReference.child(PATH_SNAPSHOT).child("my_photo")
+        val key = mDatabaseReference.push().key!!
         val storageReference = mStoreageReference.child(PATH_SNAPSHOT).child("mu_photo")
         if(mPhotoSelectUri != null){
             storageReference.putFile(mPhotoSelectUri!!)
@@ -70,6 +70,11 @@ class AddFragment : Fragment() {
                 .addOnSuccessListener {
                     Snackbar.make(mBinding.root, "Instantánea publicada",
                         Snackbar.LENGTH_SHORT).show()
+                    it.storage.downloadUrl.addOnSuccessListener {
+                        saveSnapshot(key, it.toString(), mBinding.etTitle.toString().trim())
+                        mBinding.tilTitle.visibility = View.GONE
+                        mBinding.tvMessage.text = getString(R.string.post_message_title)
+                    }
                 }
                 .addOnFailureListener{
                     Snackbar.make(mBinding.root, "No se pudo subir, intente más tarde.",
@@ -78,8 +83,9 @@ class AddFragment : Fragment() {
         }
     }
 
-    private fun saveSnapshot(){
-
+    private fun saveSnapshot(key: String, uri:String, title: String){
+        val snapshot = Snapshot(title = title, photoUrl = url)
+        mDatabaseReference.child(key).setValue(snapshot)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
